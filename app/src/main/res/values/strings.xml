@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Snuker</string>
+    <string name="app_subtitle">Transparent billiards overlay</string>
+    <string name="start_overlay">Start Overlay</string>
+    <string name="open_overlay_settings">Grant Overlay Permission</string>
+    <string name="overlay_permission_required">Please allow display over other apps</string>
+    <string name="overlay_started">Overlay running — look for the 8-ball</string>
+    <string name="status_overlay">Overlay permission: %1$s</string>
+    <string name="status_notification">Notification permission: %1$s</string>
+    <string name="notification_channel_name">Snuker Overlay</string>
+    <string name="notification_channel_desc">Keeps the pool overlay alive</string>
+    <string name="notification_title">Snuker Overlay Active</string>
+    <string name="notification_text">Tap Stop to close the overlay</string>
+    <string name="notification_stop">Stop</string>
+</resources>
