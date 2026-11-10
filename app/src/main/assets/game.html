@@ -207,6 +207,7 @@
       var ballBodies = [];
       var pocketBodies = [];
       var wallBodies = [];
+      var topCushion = null;
       var pourDone = false;
       var tableAlpha = 0;
       var phase = "idle"; // idle | shatter | pour | play | ended
@@ -803,6 +804,7 @@
         ballBodies = [];
         pocketBodies = [];
         wallBodies = [];
+        topCushion = null;
         pourDone = false;
         resetCue();
       }
@@ -864,8 +866,9 @@
           });
         }
 
+        // Top cushion is deferred until pour finishes so balls can fall in.
+        topCushion = seg(ix + gap, iy - thick, iw - gap * 2, thick);
         wallBodies = [
-          seg(ix + gap, iy - thick, iw - gap * 2, thick),
           seg(ix + gap, iy + ih, iw - gap * 2, thick),
           seg(ix - thick, iy + gap, thick, ih / 2 - gap * 2),
           seg(ix - thick, iy + ih / 2 + gap, thick, ih / 2 - gap * 2),
@@ -884,6 +887,8 @@
         Matter.World.add(engine.world, wallBodies.concat(pocketBodies));
 
         Matter.Events.on(engine, "collisionStart", function (ev) {
+          // Ignore pockets while balls are pouring in from above.
+          if (phase === "pour" || !pourDone) return;
           var pairs = ev.pairs;
           for (var i = 0; i < pairs.length; i++) {
             var a = pairs[i].bodyA;
@@ -905,6 +910,27 @@
             }
           }
         });
+      }
+
+      function sealTableTop(t) {
+        if (!engine || !topCushion) return;
+        if (wallBodies.indexOf(topCushion) === -1) {
+          wallBodies.push(topCushion);
+          Matter.World.add(engine.world, topCushion);
+        }
+        // Nudge any ball still above the felt into the playable area.
+        var minY = t.inner.y + t.ballR * 1.15;
+        var minX = t.inner.x + t.ballR * 1.1;
+        var maxX = t.inner.x + t.inner.w - t.ballR * 1.1;
+        for (var i = 0; i < ballBodies.length; i++) {
+          var b = ballBodies[i];
+          var nx = Math.min(maxX, Math.max(minX, b.position.x));
+          var ny = b.position.y < minY ? minY + Math.random() * t.ballR : b.position.y;
+          if (nx !== b.position.x || ny !== b.position.y) {
+            Matter.Body.setPosition(b, { x: nx, y: ny });
+            Matter.Body.setVelocity(b, { x: b.velocity.x * 0.2, y: 0 });
+          }
+        }
       }
 
       function makeBallBody(x, y, r, num, air) {
@@ -956,7 +982,8 @@
         if (pourTimer) clearTimeout(pourTimer);
         pourTimer = setTimeout(function () {
           pourTimer = null;
-          if (!engine) return;
+          if (!engine || !table) return;
+          sealTableTop(table);
           engine.gravity.y = 0;
           for (var i = 0; i < ballBodies.length; i++) {
             Matter.Body.setVelocity(ballBodies[i], {
