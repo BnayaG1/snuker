@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
 
 /**
  * Permission gate + overlay launch entry point.
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var startButton: Button
     private lateinit var overlaySettingsButton: Button
-    private lateinit var newGameButton: Button
+    private lateinit var newGameButton: MaterialButton
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -136,19 +137,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshNewGameButton() {
         val active = OverlayService.isGameActive
-        newGameButton.isEnabled = active
+        // Keep enabled=true so Material doesn't wash the button out to near-invisible.
+        newGameButton.isClickable = active
+        newGameButton.isFocusable = active
         if (active) {
             newGameButton.backgroundTintList =
                 ContextCompat.getColorStateList(this, R.color.btn_new_enabled)
             newGameButton.setTextColor(
                 ContextCompat.getColor(this, R.color.btn_new_text_enabled)
             )
+            newGameButton.strokeWidth = 0
         } else {
             newGameButton.backgroundTintList =
                 ContextCompat.getColorStateList(this, R.color.btn_new_disabled)
             newGameButton.setTextColor(
                 ContextCompat.getColor(this, R.color.btn_new_text_disabled)
             )
+            newGameButton.strokeWidth = resources.displayMetrics.density.toInt().coerceAtLeast(2) * 2
+            newGameButton.strokeColor =
+                ContextCompat.getColorStateList(this, R.color.btn_new_stroke_disabled)
         }
     }
 

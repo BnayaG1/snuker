@@ -42,17 +42,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/newGameButton"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
+        android:layout_width="168dp"
+        android:layout_height="168dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
         android:text="@string/new_game"
-        android:textSize="28sp"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:enabled="false"
+        android:clickable="false"
+        android:focusable="false"
         android:backgroundTint="@color/btn_new_disabled"
         android:textColor="@color/btn_new_text_disabled"
-        app:cornerRadius="80dp"
+        app:cornerRadius="84dp"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/btn_new_stroke_disabled"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
