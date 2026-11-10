@@ -1,0 +1,5 @@
+Classic Pool Game (henshmi/Classic-Pool-Game)
+Copyright (c) 2018 Chen Shmilovich
+Licensed under the MIT License — see LICENSE.txt
+
+Integrated into Snuker as the in-overlay 8-ball engine.

@@ -13,3 +13,5 @@
 *.ap_
 *.dex
 *.class
+.vendor/
+.apk-release/

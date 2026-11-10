@@ -83,8 +83,18 @@ class OverlayService : Service() {
     /** Stop gameplay and restore the floating 8-ball (idle overlay). */
     private fun returnToIdle() {
         if (!overlayAttached) return
+        // Classic Pool may be on pool/index.html — always bounce to idle shell.
         webView?.evaluateJavascript(
-            "if (window.SnukerApp) { SnukerApp.returnIdle(); }",
+            """
+            (function () {
+              try {
+                if (window.SnukerBridge && window.SnukerBridge.setMode) {
+                  window.SnukerBridge.setMode('idle');
+                }
+              } catch (e) {}
+              window.location.href = 'file:///android_asset/game.html';
+            })();
+            """.trimIndent(),
             null
         )
         applyTouchMode(OverlayJsBridge.MODE_IDLE)
