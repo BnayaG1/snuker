@@ -20,9 +20,13 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
+          cache: gradle
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Do not install obsolete package "tools" (breaks modern sdkmanager)
+          packages: platform-tools platforms;android-35 build-tools;35.0.0
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
