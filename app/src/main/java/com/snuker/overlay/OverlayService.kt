@@ -40,7 +40,10 @@ class OverlayService : Service() {
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        isRunning = true
+        isGameActive = false
         attachOverlay()
+        publishState()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -48,6 +51,10 @@ class OverlayService : Service() {
             ACTION_STOP -> {
                 tearDownAndStop()
                 return START_NOT_STICKY
+            }
+            ACTION_RETURN_IDLE -> {
+                returnToIdle()
+                return START_STICKY
             }
         }
         if (!overlayAttached) {
@@ -58,13 +65,35 @@ class OverlayService : Service() {
 
     override fun onDestroy() {
         removeOverlay()
+        isRunning = false
+        isGameActive = false
+        publishState()
         super.onDestroy()
     }
 
     private fun tearDownAndStop() {
         removeOverlay()
+        isRunning = false
+        isGameActive = false
+        publishState()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
+    }
+
+    /** Stop gameplay and restore the floating 8-ball (idle overlay). */
+    private fun returnToIdle() {
+        if (!overlayAttached) return
+        webView?.evaluateJavascript(
+            "if (window.SnukerApp) { SnukerApp.returnIdle(); }",
+            null
+        )
+        applyTouchMode(OverlayJsBridge.MODE_IDLE)
+    }
+
+    private fun publishState() {
+        sendBroadcast(
+            Intent(ACTION_STATE_CHANGED).setPackage(packageName)
+        )
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -160,6 +189,8 @@ class OverlayService : Service() {
         val params = buildLayoutParams(idle = idle)
         layoutParams = params
         currentMode = normalized
+        isGameActive = !idle
+        publishState()
 
         try {
             webView?.let { view ->
@@ -269,6 +300,16 @@ class OverlayService : Service() {
         const val CHANNEL_ID = "snuker_overlay"
         const val NOTIFICATION_ID = 1001
         const val ACTION_STOP = "com.snuker.overlay.ACTION_STOP"
+        const val ACTION_RETURN_IDLE = "com.snuker.overlay.ACTION_RETURN_IDLE"
+        const val ACTION_STATE_CHANGED = "com.snuker.overlay.ACTION_STATE_CHANGED"
+
+        @Volatile
+        var isRunning: Boolean = false
+            private set
+
+        @Volatile
+        var isGameActive: Boolean = false
+            private set
 
         private const val ASSET_GAME_URL = "file:///android_asset/game.html"
         /** Matches the floating 8-ball hit target (Stage 3). */

@@ -13,4 +13,6 @@
     <string name="notification_title">Snuker Overlay Active</string>
     <string name="notification_text">Tap Stop to close the overlay</string>
     <string name="notification_stop">Stop</string>
+    <string name="new_game">חדש</string>
+    <string name="game_returned_idle">Game stopped — tap the 8-ball to play</string>
 </resources>
