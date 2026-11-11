@@ -1,44 +1,45 @@
 "use strict";
 
-function Ball(initPos,color){
+function Ball(initPos, color, number){
 	this.initPos = initPos;
     this.position = initPos.copy();
     this.origin = new Vector2(25,25);
     this.velocity = Vector2.zero;
-    this.color = color; 
     this.moving = false;
     this.visible = true;
     this.inHole = false;
+    this.number = (typeof number === "number") ? number : 0;
+    this._color = color;
+    this.sprite = spriteForPoolBall(this._color, this.number);
+}
+
+function spriteForPoolBall(color, number) {
+    if (sprites.poolBall && number > 0 && sprites.poolBall[number]) {
+        return sprites.poolBall[number];
+    }
+    if (color === Color.red) {
+        return sprites.redBall;
+    }
+    if (color === Color.yellow) {
+        return sprites.yellowBall;
+    }
+    if (color === Color.black) {
+        return sprites.blackBall;
+    }
+    return sprites.ball;
 }
 
 Object.defineProperty(Ball.prototype, "color",
     {
     	get: function(){
-    		if(this.sprite == sprites.redBall){
-    			return Color.red;
-    		}
-    		else if(this.sprite == sprites.yellowBall){
-    			return Color.yellow;
-    		}
-			else if(this.sprite == sprites.blackBall){
-    			return Color.black;
-    		}
-    		else{
-    			return Color.white;
-    		}
+    		return this._color;
     	},
         set: function (value) {
-            if (value === Color.red){
-                this.sprite = sprites.redBall;
-            }
-            else if(value == Color.yellow){
-            	this.sprite = sprites.yellowBall;
-            }
-			else if(value == Color.black){
-            	this.sprite = sprites.blackBall;
-            }
-            else{
-            	this.sprite = sprites.ball;
+            this._color = value;
+            if (value === Color.red || value === Color.yellow ||
+                value === Color.black || value === Color.white) {
+                // Keep numbered art when group color is unchanged for gameplay.
+                this.sprite = spriteForPoolBall(value, this.number);
             }
         }
     });
@@ -137,7 +138,7 @@ Ball.prototype.reset = function(){
 	this.inHole = false;
 	this.moving = false;
 	this.velocity = Vector2.zero;
-	this.position = this.initPos;
+	this.position = this.initPos.copy ? this.initPos.copy() : this.initPos;
 	this.visible = true;
 }
 

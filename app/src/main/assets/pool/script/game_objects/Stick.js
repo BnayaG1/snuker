@@ -9,6 +9,8 @@ function Stick(position){
     this.rotation = 0;
     this.power = 0;
     this.trackMouse = true;
+    this._touchDown = false;
+    this._charging = false;
 }
 
 Stick.prototype.handleInput = function (delta) {
@@ -18,6 +20,15 @@ Stick.prototype.handleInput = function (delta) {
 
     if(Game.policy.turnPlayed)
       return;
+
+    if(!this.visible)
+      return;
+
+    // Mobile / overlay: pull stick back, release to strike.
+    if (window.SNUKER_EMBED) {
+      this.handleTouchStrike();
+      return;
+    }
 
     if(Keyboard.down(Keys.W) && KEYBOARD_INPUT_ON){
       if(this.power < 75){
@@ -52,6 +63,46 @@ Stick.prototype.handleInput = function (delta) {
     }
 };
 
+/** Aim with finger; drag away from cue ball to charge; release to shoot. */
+Stick.prototype.handleTouchStrike = function () {
+  var down = Mouse.left.down;
+  var justReleased = this._touchDown && !down;
+  this._touchDown = down;
+
+  if (this.shooting)
+    return;
+
+  if (down) {
+    var dx = Mouse.position.x - this.position.x;
+    var dy = Mouse.position.y - this.position.y;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (this.trackMouse) {
+      this.rotation = Math.atan2(dy, dx);
+    }
+
+    // Start charging once the finger is pulled far enough behind the cue.
+    if (!this._charging && dist > 36) {
+      this._charging = true;
+    }
+
+    if (this._charging) {
+      var power = Math.min(75, Math.max(0, (dist - 36) * 0.38));
+      this.power = power;
+      // Match W-key pull: +2 origin per +1.2 power.
+      this.origin = new Vector2(970 + power * (2 / 1.2), 11);
+    }
+  } else if (justReleased) {
+    if (this.power > 1.5) {
+      this.shoot(this.power, this.rotation);
+    } else {
+      this.power = 0;
+      this.origin = new Vector2(970, 11);
+    }
+    this._charging = false;
+  }
+};
+
 Stick.prototype.shoot = function(power, rotation){
   this.power = power;
   this.rotation = rotation;
@@ -82,6 +133,8 @@ Stick.prototype.reset = function(){
   this.shooting = false;
   this.visible = true;
 	this.power = 0;
+  this._charging = false;
+  this._touchDown = false;
 };
 
 Stick.prototype.draw = function () {

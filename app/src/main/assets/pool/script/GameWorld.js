@@ -4,28 +4,29 @@ function GameWorld() {
 
     this.whiteBallStartingPosition = new Vector2(413,413);
 
+    // Stripes (9–15) = red group for policy; solids (1–7) = yellow group.
     this.redBalls = [
-    new Ball(new Vector2(1056,433),Color.red),//3
-    new Ball(new Vector2(1090,374),Color.red),//4
-    new Ball(new Vector2(1126,393),Color.red),//8
-    new Ball(new Vector2(1126,472),Color.red),//10;
-    new Ball(new Vector2(1162,335),Color.red),//11
-    new Ball(new Vector2(1162,374),Color.red),//12
-    new Ball(new Vector2(1162,452),Color.red)//14
+    new Ball(new Vector2(1056,433),Color.red,9),
+    new Ball(new Vector2(1090,374),Color.red,10),
+    new Ball(new Vector2(1126,393),Color.red,11),
+    new Ball(new Vector2(1126,472),Color.red,12),
+    new Ball(new Vector2(1162,335),Color.red,13),
+    new Ball(new Vector2(1162,374),Color.red,14),
+    new Ball(new Vector2(1162,452),Color.red,15)
     ]
 
     this.yellowBalls = [
-    new Ball(new Vector2(1022,413),Color.yellow),//1
-    new Ball(new Vector2(1056,393),Color.yellow),//2
-    new Ball(new Vector2(1090,452),Color.yellow),//6
-    new Ball(new Vector2(1126,354),Color.yellow),//7
-    new Ball(new Vector2(1126,433),Color.yellow),//9
-    new Ball(new Vector2(1162,413),Color.yellow),//13
-    new Ball(new Vector2(1162,491),Color.yellow)//15
+    new Ball(new Vector2(1022,413),Color.yellow,1),
+    new Ball(new Vector2(1056,393),Color.yellow,2),
+    new Ball(new Vector2(1090,452),Color.yellow,3),
+    new Ball(new Vector2(1126,354),Color.yellow,4),
+    new Ball(new Vector2(1126,433),Color.yellow,5),
+    new Ball(new Vector2(1162,413),Color.yellow,6),
+    new Ball(new Vector2(1162,491),Color.yellow,7)
     ];
 
-    this.whiteBall = new Ball(new Vector2(413,413),Color.white);
-    this.blackBall = new Ball(new Vector2(1090,413),Color.black);
+    this.whiteBall = new Ball(new Vector2(413,413),Color.white,0);
+    this.blackBall = new Ball(new Vector2(1090,413),Color.black,8);
 
     this.balls = [
     this.yellowBalls[0],
