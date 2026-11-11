@@ -52,7 +52,18 @@
       .script('script/GameWorld.js').wait()
       .script('script/Game.js').wait()
       .script('script/Assets.js').wait(function () {
-        Game.start('gameArea', 'screen', 1500, 825);
+        function startWhenFullscreen() {
+          // Wait until native overlay expands past the idle 96dp bubble.
+          if ((window.innerWidth || 0) < 200 || (window.innerHeight || 0) < 200) {
+            setTimeout(startWhenFullscreen, 50);
+            return;
+          }
+          Game.start('gameArea', 'screen', 1500, 825);
+          setTimeout(function () {
+            if (typeof Canvas2D !== "undefined" && Canvas2D.resize) Canvas2D.resize();
+          }, 100);
+        }
+        startWhenFullscreen();
       });
   </script>
 </head>

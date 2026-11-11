@@ -12,8 +12,9 @@ html, body {
 }
 
 #gameArea {
-  position: relative;
+  position: fixed;
   background: transparent;
+  overflow: hidden;
 }
 
 #screen {

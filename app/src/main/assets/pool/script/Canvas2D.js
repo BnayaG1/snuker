@@ -4,6 +4,7 @@ function Canvas2D_Singleton() {
     this._canvas = null;
     this._canvasContext = null;
     this._canvasOffset = Vector2.zero;
+    this._snukerRotated = false;
 }
 
 Object.defineProperty(Canvas2D_Singleton.prototype, "offset",
@@ -42,7 +43,54 @@ Canvas2D_Singleton.prototype.clear = function () {
 Canvas2D_Singleton.prototype.resize = function () {
     var gameCanvas = Canvas2D._canvas;
     var gameArea = Canvas2D._div;
+    if (!gameCanvas || !gameArea || !Game.size) return;
+
     var widthToHeight = Game.size.x / Game.size.y;
+
+    // Snuker overlay: phone stays portrait, rotate the landscape table 90° and fill the screen.
+    if (window.SNUKER_EMBED) {
+        var screenW = window.innerWidth || 1;
+        var screenH = window.innerHeight || 1;
+        // After 90° rotation, the usable landscape box is (screenH x screenW).
+        var availW = screenH;
+        var availH = screenW;
+        var boxW = availW;
+        var boxH = availH;
+        var availRatio = availW / availH;
+
+        if (availRatio > widthToHeight) {
+            boxW = availH * widthToHeight;
+            boxH = availH;
+        } else {
+            boxW = availW;
+            boxH = availW / widthToHeight;
+        }
+
+        gameArea.style.position = "fixed";
+        gameArea.style.left = "50%";
+        gameArea.style.top = "50%";
+        gameArea.style.right = "auto";
+        gameArea.style.bottom = "auto";
+        gameArea.style.width = boxW + "px";
+        gameArea.style.height = boxH + "px";
+        gameArea.style.margin = "0";
+        gameArea.style.transformOrigin = "center center";
+        gameArea.style.transform = "translate(-50%, -50%) rotate(90deg)";
+
+        gameCanvas.style.width = "100%";
+        gameCanvas.style.height = "100%";
+        gameCanvas.width = Math.max(1, Math.floor(boxW));
+        gameCanvas.height = Math.max(1, Math.floor(boxH));
+
+        Canvas2D._snukerRotated = true;
+        Canvas2D._snukerBoxW = boxW;
+        Canvas2D._snukerBoxH = boxH;
+        Canvas2D._canvasOffset = new Vector2(0, 0);
+        return;
+    }
+
+    Canvas2D._snukerRotated = false;
+
     var newWidth = window.innerWidth;
     var newHeight = window.innerHeight;
     var newWidthToHeight = newWidth / newHeight;
@@ -52,6 +100,10 @@ Canvas2D_Singleton.prototype.resize = function () {
     } else {
         newHeight = newWidth / widthToHeight;
     }
+    gameArea.style.position = "";
+    gameArea.style.left = "";
+    gameArea.style.top = "";
+    gameArea.style.transform = "";
     gameArea.style.width = newWidth + 'px';
     gameArea.style.height = newHeight + 'px';
 
@@ -64,11 +116,12 @@ Canvas2D_Singleton.prototype.resize = function () {
     gameCanvas.height = newHeight;
 
     var offset = Vector2.zero;
-    if (gameCanvas.offsetParent) {
+    var node = gameCanvas;
+    if (node.offsetParent) {
         do {
-            offset.x += gameCanvas.offsetLeft;
-            offset.y += gameCanvas.offsetTop;
-        } while ((gameCanvas = gameCanvas.offsetParent));
+            offset.x += node.offsetLeft;
+            offset.y += node.offsetTop;
+        } while ((node = node.offsetParent));
     }
     Canvas2D._canvasOffset = offset;
 };
@@ -114,4 +167,3 @@ Canvas2D_Singleton.prototype.drawText = function (text, position, origin, color,
 };
 
 var Canvas2D = new Canvas2D_Singleton();
-

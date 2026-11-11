@@ -2,9 +2,23 @@
 
 function handleMouseMove(evt) {
     var canvasScale = Canvas2D.scale;
-    var canvasOffset = Canvas2D.offset;
-    var mx = (evt.pageX - canvasOffset.x) / canvasScale.x;
-    var my = (evt.pageY - canvasOffset.y) / canvasScale.y;
+    var mx, my;
+
+    // Inverse of translate(-50%,-50%) rotate(90deg) around screen center.
+    if (window.SNUKER_EMBED && Canvas2D._snukerRotated) {
+        var cx = window.innerWidth / 2;
+        var cy = window.innerHeight / 2;
+        var boxW = Canvas2D._snukerBoxW || Canvas2D._canvas.width;
+        var boxH = Canvas2D._snukerBoxH || Canvas2D._canvas.height;
+        var lx = evt.pageY - cy + boxW / 2;
+        var ly = cx - evt.pageX + boxH / 2;
+        mx = lx / canvasScale.x;
+        my = ly / canvasScale.y;
+    } else {
+        var canvasOffset = Canvas2D.offset;
+        mx = (evt.pageX - canvasOffset.x) / canvasScale.x;
+        my = (evt.pageY - canvasOffset.y) / canvasScale.y;
+    }
     Mouse._position = new Vector2(mx, my);
 }
 

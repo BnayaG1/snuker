@@ -140,8 +140,17 @@ class OverlayService : Service() {
 
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView?, url: String?) {
-                    // Ensure native starts in idle touch-through window
-                    applyTouchMode(OverlayJsBridge.MODE_IDLE)
+                    val u = url.orEmpty()
+                    val poolPage = u.contains("/pool/") || u.contains("pool/index.html")
+                    if (poolPage) {
+                        applyTouchMode(OverlayJsBridge.MODE_GAME)
+                        view?.evaluateJavascript(
+                            "window.dispatchEvent(new Event('resize'));",
+                            null
+                        )
+                    } else {
+                        applyTouchMode(OverlayJsBridge.MODE_IDLE)
+                    }
                 }
             }
             webChromeClient = WebChromeClient()
